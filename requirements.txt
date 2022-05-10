@@ -1,0 +1,7 @@
+aiohttp == 3.6.3
+discord.py == 1.7.2
+ib == 0.8.0
+irclogparser == 1.0.6
+mtranslate == 1.8
+python_dotenv == 0.17.1
+requests == 2.24.0
