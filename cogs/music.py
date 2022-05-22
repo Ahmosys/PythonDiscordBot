@@ -19,20 +19,19 @@ class music(commands.Cog):
                 if "youtube" in item: # If user send link
                     info = ydl.extract_info(item, download=False)
                 else: #If user send keyword
-                    info = ydl.extract_info("ytsearch:%s" % item, download=False)['entries'][0]
+                    info = ydl.extract_info(f"ytsearch:{item}", download=False)['entries'][0]
                 return {'source': info['formats'][0]['url'], 'title': info['title']}
-            except:
+            except Exception:
                 return False # If some errors happen return False
     
     @commands.command(description = "Permet de jouer une musique dans un salon vocal.")
     async def play(self, ctx, *args):
         ctx_voice = ctx.message.author.voice
         query = " ".join(args)
-        
         if ctx_voice is None:
             await ctx.send("Vous devez être connecter à un salon vocal pour éffectuer cette commande!")
             return
-        elif query == "":
+        elif not query:
             await ctx.send("Veuillez renseigner un lien ou un mot clé!")
             return
         elif self.vc is None or not self.vc.is_connected():
