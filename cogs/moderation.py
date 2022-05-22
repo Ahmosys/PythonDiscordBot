@@ -217,6 +217,18 @@ class moderation(commands.Cog):
     async def guild_owner(self, ctx):
         await ctx.send(f"Le propriétaire du serveur {ctx.guild.name} est: {ctx.guild.owner.mention} dites-lui merci ! :heart:")
         
-    
+    @commands.command(name = "dcall", aliases = ["911", "hitler"], description = "Permet de kick tout les membres présent dans le salon vocal.")
+    @commands.has_permissions(kick_members = True)
+    async def disconnect_all_members_from_voice(self, ctx):
+        if ctx.author.voice is None:
+            await ctx.send("Vous n'êtes pas connecté à un salon vocal!")
+        else:
+            members_in_voice_channel = ctx.author.voice.channel.members
+            members_in_voice_channel.remove(ctx.author)
+            for member in members_in_voice_channel:
+                await member.move_to(None)
+            await ctx.send("Tout les membres ont été déconnectés du salon vocal!")
+            
+            
 def setup(bot):
 	bot.add_cog(moderation(bot))
