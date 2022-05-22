@@ -227,7 +227,7 @@ class moderation(commands.Cog):
             members_in_voice_channel.remove(ctx.author)
             for member in members_in_voice_channel:
                 await member.move_to(None)
-            await ctx.send("Tout les membres ont été déconnectés du salon vocal!")
+            await ctx.send("Tous les membres ont été déconnectés du salon vocal!")
             
             
 def setup(bot):
