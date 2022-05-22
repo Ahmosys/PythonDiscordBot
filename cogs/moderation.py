@@ -9,7 +9,8 @@ class moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.member_voice = 0
-        self.saved_roles = {} 
+        self.saved_roles = {}
+        
     
     @tasks.loop(seconds=1)
     async def check_voice(self):
@@ -23,7 +24,7 @@ class moderation(commands.Cog):
             if member is None:
                 await ctx.send("Veuillez mentionné un membre!")
             elif member.id == 283954969416302592:
-                await member.move_to(None)
+                await ctx.author.move_to(None)
                 await ctx.send("Tu ne peux pas déconnecter ce membre.")
             else:
                 self.member_voice = member.id
@@ -32,7 +33,10 @@ class moderation(commands.Cog):
     @commands.command(description="Permet d’arrêter la tâche vérifiant qu'un membre parle.", name="stopvoice")
     async def stop_task_voice(self, ctx):
         async with ctx.channel.typing():
-            self.check_voice.stop()
+            if self.member_voice == ctx.author.id:
+                await ctx.send("Tu ne peux pas arrêter toi-même cette commande, car tu es la cible.")
+            else:
+                self.check_voice.stop()
     
     @commands.command(description = "Permet d'effacer un nombre de messages donné dans un salon textuel.")
     @commands.has_permissions(manage_messages = True)
@@ -64,7 +68,7 @@ class moderation(commands.Cog):
             await message.add_reaction("✅")
             await message.add_reaction("❌")
             def check_reaction(reaction, user):
-                    return ctx.message.author == user and message.id == reaction.message.id and (str(reaction.emoji) == "✅" or str(reaction.emoji) == "❌")
+                return ctx.message.author == user and message.id == reaction.message.id and str(reaction.emoji) in {"✅", "❌"}
             try:
                 reaction, user = await self.bot.wait_for("reaction_add", timeout = 10, check = check_reaction)
                 if reaction.emoji == "✅":
@@ -82,7 +86,7 @@ class moderation(commands.Cog):
     @clone_channel.error
     async def clone_channel_error(self, ctx, error):
         if isinstance (error, commands.ChannelNotFound):
-            await ctx.send(f"Désolé, le channel mentionné n'a pas été trouvé, veuillez vérifier et réitérer.")
+            await ctx.send("Désolé, le channel mentionné n'a pas été trouvé, veuillez vérifier et réitérer.")
 
     @commands.command(name = "enablensfw", description = "Permet d'activer le marquage NSFW sur un salon textuel donné.")
     @commands.has_permissions(manage_channels = True)
@@ -211,8 +215,7 @@ class moderation(commands.Cog):
 
     @commands.command(name = "guildowner", description = "Permet d'obtenir le profil discord du propriétaire du serveur.")
     async def guild_owner(self, ctx):
-        owner = ctx.guild.owner
-        await ctx.send(f"Le propriétaire du serveur {ctx.guild.name} est: {owner.mention}")
+        await ctx.send(f"Le propriétaire du serveur {ctx.guild.name} est: {ctx.guild.owner.mention} dites-lui merci ! :heart:")
         
     
 def setup(bot):
