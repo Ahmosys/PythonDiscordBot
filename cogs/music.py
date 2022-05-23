@@ -33,7 +33,7 @@ class music(commands.Cog):
             if len(self.queue) > 1:
                 self.queue.pop(list(self.queue.keys())[0])
                 asyncio.run_coroutine_threadsafe(ctx.send(f"Je lance la musique : {list(self.queue.keys())[0]}"), self.bot.loop)
-                self.play_song()
+                self.play_song(ctx)
             else:
                 asyncio.run_coroutine_threadsafe(self.vc.disconnect(), self.bot.loop)
                 self.queue = {}
