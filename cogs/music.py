@@ -73,6 +73,7 @@ class music(commands.Cog):
         elif self.vc.channel != ctx_voice.channel:
             await ctx.send("Vous ne pouvez pas déconnecter le bot car vous n'êtes pas dans le même salon vocal que lui!")
         else:
+            self.queue = {}
             await self.vc.disconnect()
             
     @commands.command(description = "Permet de mettre en pause la musique en cours d'écoute.")
@@ -94,6 +95,16 @@ class music(commands.Cog):
             await ctx.send("Actuellement, aucun son est en pause!")
         else:
             self.vc.resume()
+    
+    @commands.command(description = "Permet de passer la musique.")
+    async def skip(self, ctx):
+        if self.vc is None or not self.vc.is_connected():
+            await ctx.send("Vous ne pouvez pas skip le son car le bot n'est pas connecté à un salon vocal!")
+        elif not self.vc.is_playing():
+            await ctx.send("Actuellement, aucun son n'est en cours de lecture!")
+        else:
+            self.vc.stop()
+            await ctx.send("Je passe au prochain son de la queue!")
     
     @commands.command(description = "Permet de définir le volume du son sortant.")
     async def setvol(self, ctx, *, volume : float  = None):
