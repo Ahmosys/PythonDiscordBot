@@ -1,4 +1,5 @@
 import discord
+import asyncio
 
 
 from discord.ext import commands
@@ -10,6 +11,7 @@ class music(commands.Cog):
         self.bot = bot
         self.vc = None
         self.volume = 1.0
+        self.queue = {}
         self.YDL_OPTIONS = {'format': 'bestaudio', 'noplaylist': True}
         self.FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
     
@@ -24,37 +26,48 @@ class music(commands.Cog):
             except Exception:
                 return False # If some errors happen return False
     
+    def play_song(self):
+        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(list(self.queue.values())[0]), volume=self.volume)
+        def next(_):
+            if len(self.queue) > 1:
+                self.queue.pop(list(self.queue.keys())[0])
+                self.play_song()
+            else:
+                asyncio.run_coroutine_threadsafe(self.vc.disconnect(), self.bot.loop)
+                self.queue = {}
+        self.vc.play(source, after=next)
+    
     @commands.command(description = "Permet de jouer une musique dans un salon vocal.")
     async def play(self, ctx, *args):
         ctx_voice = ctx.message.author.voice
         query = " ".join(args)
         if ctx_voice is None:
-            await ctx.send("Vous devez être connecter à un salon vocal pour éffectuer cette commande!")
+            await ctx.send("Vous devez être connecter à un salon vocal pour effectuer cette commande!")
             return
         elif not query:
             await ctx.send("Veuillez renseigner un lien ou un mot clé!")
             return
         elif self.vc is None or not self.vc.is_connected():
-            print("Pas connecté")
             self.vc = await ctx_voice.channel.connect()
-        elif self.vc.is_playing():
-            await ctx.send("Le bot est déjà entrain de jouer un son!")
-            return
         elif self.vc.channel != ctx_voice.channel:
             print("Pas même channel que ctx")
             await self.vc.move_to(ctx_voice.channel)
         ytb_dl = self.search_yt(query)
         if ytb_dl == False:
             await ctx.send("Lien ou mot clé invalide!")
+        elif self.vc.is_playing():
+            await ctx.send("Le bot est déjà entrain de jouer du son, j'ajoute le son à la queue!")
+            self.queue[list(ytb_dl.values())[1]] = list(ytb_dl.values())[0] # Add to queue dict
         else:
-            self.vc.play(discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(ytb_dl['source']), volume=self.volume), after=None)
-            await ctx.send(f"Je lance la musique : {ytb_dl['title']}")
+            self.queue[list(ytb_dl.values())[1]] = list(ytb_dl.values())[0]
+            await ctx.send(f"Je lance la musique : {list(self.queue.keys())[0]}")
+            self.play_song()
     
     @commands.command(description = "Permet de déconnecter le bot du salon vocal.")
     async def dc(self, ctx):
         ctx_voice = ctx.message.author.voice
         if ctx_voice is None:
-            await ctx.send("Vous devez être connecter à un salon vocal pour éffectuer cette commande!")
+            await ctx.send("Vous devez être connecter à un salon vocal pour effectuer cette commande!")
         elif self.vc is None or not self.vc.is_connected():
             await ctx.send("Vous ne pouvez pas déconnecter le bot car celui-ci n'est pas connecté à un salon vocal!")
         elif self.vc.channel != ctx_voice.channel:
