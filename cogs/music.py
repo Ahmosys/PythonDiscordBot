@@ -116,6 +116,10 @@ class music(commands.Cog):
             self.volume = volume / 100
             await ctx.send(f"Le son a bien été défini sur {volume}%")
     
-    
+    @commands.command(description = "Permet d'afficher les sons en liste d'attente")
+    async def queue(self, ctx):
+        for titre, url in self.queue.items():
+            await ctx.send(f"{titre} : {url}")
+
 def setup(bot):
 	bot.add_cog(music(bot))
