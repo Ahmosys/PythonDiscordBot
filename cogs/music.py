@@ -121,7 +121,7 @@ class music(commands.Cog):
     async def queue(self, ctx):
         em = discord.Embed(title = "File d'attente | Music", color = Colours.green(), timestamp = ctx.message.created_at)
         em.set_footer(text = ctx.author)
-        if (len(self.queue) < 1):
+        if (len(self.queue) <= 1):
             await ctx.send("Aucun son dans la file d'attente !")
         else:
             for i, (titre) in enumerate(self.queue.keys()):
