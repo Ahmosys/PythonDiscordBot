@@ -4,6 +4,7 @@ import asyncio
 
 from discord.ext import commands
 from youtube_dl import YoutubeDL
+from ext.colours import Colours
 
 
 class music(commands.Cog):
@@ -118,8 +119,12 @@ class music(commands.Cog):
     
     @commands.command(description = "Permet d'afficher les sons en liste d'attente")
     async def queue(self, ctx):
-        for titre, url in self.queue.items():
-            await ctx.send(f"{titre} : {url}")
+        em = discord.Embed(title = "File d'attente | Music", color = Colours.green(), timestamp = ctx.message.created_at)
+        em.add_field(name = "Nombre de sons en attente : ", value = len(self.queue), inline = False)
+        em.set_footer(text = ctx.author)
+        for i, (titre, url) in enumerate(self.queue.items()):
+            em.add_field(name = f"{i}. {titre}", value=url, inline = False)
+        await ctx.send(embed = em)
 
 def setup(bot):
 	bot.add_cog(music(bot))
