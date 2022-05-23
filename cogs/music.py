@@ -122,8 +122,8 @@ class music(commands.Cog):
         em = discord.Embed(title = "File d'attente | Music", color = Colours.green(), timestamp = ctx.message.created_at)
         em.add_field(name = "Nombre de sons en attente : ", value = len(self.queue), inline = False)
         em.set_footer(text = ctx.author)
-        for i, (titre, url) in enumerate(self.queue.items()):
-            em.add_field(name = f"{i}. {titre}", value=url, inline = False)
+        for i, (titre) in enumerate(self.queue.keys()):
+            em.add_field(name = f"{i}", value = f"```{titre}```", inline = False)
         await ctx.send(embed = em)
 
 def setup(bot):
