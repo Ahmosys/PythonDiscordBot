@@ -120,7 +120,6 @@ class music(commands.Cog):
     @commands.command(description = "Permet d'afficher les sons en liste d'attente")
     async def queue(self, ctx):
         em = discord.Embed(title = "File d'attente | Music", color = Colours.green(), timestamp = ctx.message.created_at)
-        em.add_field(name = "Nombre de sons en attente : ", value = len(self.queue), inline = False)
         em.set_footer(text = ctx.author)
         for i, (titre) in enumerate(self.queue.keys()):
             em.add_field(name = f"{i}", value = f"```{titre}```", inline = False)
