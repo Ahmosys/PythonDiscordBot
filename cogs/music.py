@@ -125,7 +125,7 @@ class music(commands.Cog):
             await ctx.send("Aucun son dans la file d'attente !")
         else:
             for i, (titre) in enumerate(self.queue.keys()):
-                em.add_field(name = f"{i}", value = f"```{titre}```", inline = False)
+                em.add_field(name = f"Position - {i}", value = f"```{titre}```", inline = False)
             await ctx.send(embed = em)
 
 def setup(bot):
