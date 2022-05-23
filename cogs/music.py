@@ -27,11 +27,12 @@ class music(commands.Cog):
             except Exception:
                 return False # If some errors happen return False
     
-    def play_song(self):
+    def play_song(self, ctx):
         source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio(list(self.queue.values())[0]), volume=self.volume)
         def next(_):
             if len(self.queue) > 1:
                 self.queue.pop(list(self.queue.keys())[0])
+                asyncio.run_coroutine_threadsafe(ctx.send(f"Je lance la musique : {list(self.queue.keys())[0]}"), self.bot.loop)
                 self.play_song()
             else:
                 asyncio.run_coroutine_threadsafe(self.vc.disconnect(), self.bot.loop)
@@ -62,7 +63,7 @@ class music(commands.Cog):
         else:
             self.queue[list(ytb_dl.values())[1]] = list(ytb_dl.values())[0]
             await ctx.send(f"Je lance la musique : {list(self.queue.keys())[0]}")
-            self.play_song()
+            self.play_song(ctx)
     
     @commands.command(description = "Permet de déconnecter le bot du salon vocal.")
     async def dc(self, ctx):
