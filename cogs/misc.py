@@ -216,7 +216,33 @@ class misc(commands.Cog):
                 dm_channel = await member.create_dm()
                 for _ in range(10):
                     await dm_channel.send("<:mickeymouse:969177185875279932>")  
-                    
     
+    @commands.command(description = "Permet de savoir si une personne est admise ou non au BTS.")
+    async def bts(self, ctx, last_name: str = None):
+        RESULT_URL = "https://cyclades.education.gouv.fr/candidat/publication/api/A11/admis/?contexte=QlRTLEExMSwyMDIyLTA2OkExMTpBOkJUUy0xLjEsMSwzMzQyNDozMjA6QlRTLTE6QTpCVFMtMS4x%0D%0ALCws"
+        async with ctx.channel.typing():
+            if last_name is None:
+                await ctx.send("Veuillez renseigner un nom!")
+            else:
+                r = requests.get(RESULT_URL)
+                if r.status_code in range (200,299):
+                    res = r.json()
+                    em = discord.Embed(title = f"Résultat BTS | Recherche par nom ({last_name.upper()})", color = Colours.blue(), timestamp = ctx.message.created_at)
+                    em.set_thumbnail(url = "https://i.pinimg.com/originals/89/2d/0d/892d0de235b41b254be9198294cf0926.png")
+                    em.set_footer(text = ctx.author)
+                    for people in res["admis"]:
+                        last_name_res = people.get("nom", "N/A").upper()
+                        first_name_res = people.get("prenoms", "N/A").capitalize()
+                        inscription_number_res = people.get("numeroInscription", "N/A")
+                        if last_name.upper() == last_name_res:
+                            em.add_field(name = f"{last_name_res} {first_name_res}", value = f"Admis(e) - {inscription_number_res}", inline = False)
+                    em.add_field(name = "Consulter vos notes en cliquant ici:", value = "[https://cyclades.education.gouv.fr/candidat/publication/A11/login](url)")
+                    if len(em.fields) <= 1:
+                        await ctx.send(f"Désolé, le nom {last_name.upper()} n'a pas été trouvé dans la liste des personnes admises.")
+                    else:
+                        await ctx.send(embed = em)
+                else:
+                    await ctx.send(f"Désolé, la commande effectuée à générée une erreur | Code erreur: {r.status_code}")
+                    
 def setup(bot):
 	bot.add_cog(misc(bot))
